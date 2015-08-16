@@ -22,4 +22,4 @@ For example :<br />
 
 Once the server is running, open a web browser and go to [http://localhost:8080](http://localhost:8080) to see the administration page tha will allow you to configure some values to the arduino and control the gopro remotely.<br />
 Here is what this page looks like :<br />
-![Screenshot admin page](/img/screen.png?raw=true "Optional Title")
+![Screenshot admin page](/img/screen.png?raw=true "Screenshot admin page")
