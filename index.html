@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="robots" content="noindex">
+		<meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
+
+		<style class="cp-pen-styles">
+		/* latin */
+		@font-face {
+		  font-family: 'Montserrat';
+		  font-style: normal;
+		  font-weight: 400;
+		  src: local('Montserrat-Regular'), url(fonts/zhcz-_WihjSQC0oHJ9TCYPk_vArhqVIZ0nv9q090hN8.woff2) format('woff2');
+		  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
+		}
+		/* latin */
+		@font-face {
+		  font-family: 'Montserrat';
+		  font-style: normal;
+		  font-weight: 700;
+		  src: local('Montserrat-Bold'), url(fonts/IQHow_FEYlDC4Gzy_m8fcoWiMMZ7xLd792ULpGE4W_Y.woff2) format('woff2');
+		  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
+		}
+
+	body, html{
+		padding: 0;
+		margin: 0;
+	}
+
+	#feedback-page{
+		text-align:center;
+	}
+
+	#form-main{
+	}
+
+	#form-div {
+		background-color:rgba(72,72,72,0.4);
+		padding:20px;
+		width: 450px;
+		left: 50%;
+		position: absolute;
+		margin-left: -260px;
+		-moz-border-radius: 7px;
+		-webkit-border-radius: 7px;
+	}
+
+	.feedback-input {
+		color:#3c3c3c;
+		font-family: Helvetica, Arial, sans-serif;
+		font-weight:500;
+		font-size: 18px;
+		border-radius: 0;
+		line-height: 22px;
+		background-color: #fbfbfb;
+		padding: 13px 13px 13px 54px;
+		margin-bottom: 10px;
+		width:100%;
+		-webkit-box-sizing: border-box;
+		-moz-box-sizing: border-box;
+		-ms-box-sizing: border-box;
+		box-sizing: border-box;
+		border: 3px solid rgba(0,0,0,0);
+	}
+
+	.feedback-input:focus{
+		background: #fff;
+		box-shadow: 0;
+		border: 3px solid #3498db;
+		color: #3498db;
+		outline: none;
+		padding: 13px 13px 13px 54px;
+	}
+
+	/* Icons ---------------------------------- */
+	#distance{
+		background-image: url(http://localhost:8080/img/ruler.svg);
+		background-size: 30px 30px;
+		background-position: 11px 8px;
+		background-repeat: no-repeat;
+	}
+
+	#distance:focus{
+		background-image: url(http://localhost:8080/img/ruler.svg);
+		background-size: 30px 30px;
+		background-position: 8px 5px;
+		background-position: 11px 8px;
+		background-repeat: no-repeat;
+	}
+
+	#threshold{
+		background-image: url(http://localhost:8080/img/light.svg);
+		background-size: 30px 30px;
+		background-position: 11px 8px;
+		background-repeat: no-repeat;
+	}
+
+	#threshold:focus{
+		background-image: url(http://localhost:8080/img/light.svg);
+		background-size: 30px 30px;
+		background-position: 8px 5px;
+		background-position: 11px 8px;
+		background-repeat: no-repeat;
+	}
+
+	#delay{
+		background-image: url(http://localhost:8080/img/timer.svg);
+		background-size: 30px 30px;
+		background-position: 11px 8px;
+		background-repeat: no-repeat;
+	}
+
+	#delay:focus{
+		background-image: url(http://localhost:8080/img/timer.svg);
+		background-size: 30px 30px;
+		background-position: 8px 5px;
+		background-position: 11px 8px;
+		background-repeat: no-repeat;
+	}
+
+	#duration{
+		background-image: url(http://localhost:8080/img/duration.svg);
+		background-size: 30px 30px;
+		background-position: 11px 8px;
+		background-repeat: no-repeat;
+	}
+
+	#duration:focus{
+		background-image: url(http://localhost:8080/img/duration.svg);
+		background-size: 30px 30px;
+		background-position: 8px 5px;
+		background-position: 11px 8px;
+		background-repeat: no-repeat;
+	}
+
+	input:hover, textarea:hover,
+	input:focus, textarea:focus {
+		background-color:white;
+	}
+
+	.button-blue{
+		font-family: 'Montserrat', Arial, Helvetica, sans-serif;
+		width: 100%;
+		border: #fbfbfb solid 4px;
+		cursor:pointer;
+		background-color: #3498db;
+		color:white;
+		font-size:24px;
+		padding-top:22px;
+		padding-bottom:22px;
+		-webkit-transition: all 0.3s;
+		-moz-transition: all 0.3s;
+		transition: all 0.3s;
+		font-weight:700;
+	}
+
+	.button-blue:hover{
+		background-color: rgba(255,255,255,1);
+		color: #0493bd;
+		border: #0493bd solid 4px;
+	}
+
+	.button-blue.small {
+		width: auto;
+		display: inline;
+		padding: 14px;
+	}
+
+	.button-blue.small.icon {
+		padding: 10px;
+	}
+
+	.button-blue.small.icon img {
+		height: 30px;
+	}
+
+	.button-blue.small.icon.selected {
+		border: #B00D0D solid 4px;
+		background-color: #B27272;
+		color: #0493bd;
+		color: #0493bd;
+	}
+
+	.button-blue.small:hover{
+		background-color: #ace4f5;
+		color: #0493bd;
+	}
+		
+	.submit:hover {
+		color: #3498db;
+	}
+
+	label>span {
+		padding: .3em;
+		color: #a0a0a0;
+		background-color: #d5e9f7;/*rgba(52, 152, 219, .35);*/
+		font-size: 1.5em;
+		font-weight: bold;
+		display: block;
+		font-family: 'Montserrat', Arial, Helvetica, sans-serif;
+
+		-moz-box-shadow: inset 0px -5px 5px 0px #dddddd;
+		-webkit-box-shadow: inset 0px -5px 5px 0px #dddddd;
+		-o-box-shadow: inset 0px -5px 5px 0px #dddddd;
+		box-shadow: inset 0px -5px 5px 0px #dddddd;
+		filter:progid:DXImageTransform.Microsoft.Shadow(color=#dddddd, Direction=90, Strength=5);
+	}
+
+	@media only screen and (max-width: 580px) {
+		#form-div{
+			left: 3%;
+			margin-right: 3%;
+			width: 88%;
+			margin-left: 0;
+			padding-left: 3%;
+			padding-right: 3%;
+		}
+
+		.button-blue {
+			font-size: 18px;
+		}
+	}
+
+
+	.section .options {
+		text-align: center;
+		background: white;
+	}
+
+	.section span {
+		display: block;
+		margin: 0;
+		font-family: 'Montserrat', Arial, Helvetica, sans-serif;
+		color:white;
+		font-size:24px;
+		font-weight: bold;
+		padding: .3em;
+		color: #a0a0a0;
+		background-color: #d5e9f7;/*rgba(52, 152, 219, .35);*/
+	}
+	.section pre {
+		margin: 0;
+		border: #fff solid 1px;
+		background: #000;
+		padding: 10px;
+		color: #fff;
+		font-size: 12px;
+		font-family: Courier;
+	}
+	.splitter {
+		display: block;
+		width: 100%;
+		height: 2px;
+		margin-top: 20px;
+		margin-bottom: 20px;
+		background-color: #fff;
+	}
+
+	</style>
+	</head>
+	<body>
+		<div id="form-main">
+			<div id="form-div">
+				<!--CONSOLE_START-->
+				<div class="section">
+				<span>Console :</span>
+					<pre>{CONSOLE_VALUE}</pre>
+				</div>
+				<!--CONSOLE_END-->
+				<form class="form" id="form1" method="GET">
+					
+					<p class="name">
+						<label>
+							<span>Distance (cm) :</span>
+							<input name="distance" type="number" class="feedback-input" placeholder="Distance (cm)" id="distance" value="{VAR_distance}" min="5" max="99" />
+						</label>
+					</p>
+					
+					<p class="name">
+						<label>
+							<span>Light threshold :</span>
+							<input name="threshold" type="number" class="feedback-input" placeholder="Distance (cm)" id="threshold" value="{VAR_threshold}" min="0" max="1023">
+						</label>
+					</p>
+					
+					<p class="name">
+						<label>
+							<span>Gopro shot delay (ms) :</span>
+							<input name="shotDelay" type="number" class="feedback-input" placeholder="Delay (ms)" id="delay" maxlength="4" value="{VAR_shotDelay}" min="0" max="5000">
+						</label>
+					</p>
+					
+					<p class="name">
+						<label>
+							<span>Gopro video duration (ms) :</span>
+							<input name="videoDuration" type="number" class="feedback-input" placeholder="Duration (ms)" id="duration" value="{VAR_videoDuration}" min="2000" max="30000">
+						</label>
+					</p>
+					
+					<input type="submit" value="SEND VALUES TO ARDUINO" class="button-blue">
+				</form>
+						
+				<div class="splitter"></div>
+
+				<input type="submit" value="GET LIGHT VALUES" class="button-blue" onClick="window.location.href='?light=true'">
+					
+				<div class="splitter"></div>
+
+				<input type="submit" value="SIMULATE LASER CROSSING" class="button-blue" onClick="window.location.href='?simulate=true'">
+					
+				<div class="splitter"></div>
+				
+				<div class="section">
+					<span>Gopro Management :</span>
+					<div class="options">
+						<button type="submit" class="button-blue small icon" onClick="window.location.href='?power=01'" title="Power on camera"><img src='./img/on.svg'></button>
+						<button type="submit" class="button-blue small icon" onClick="window.location.href='?power=00'" title="Power off camera"><img src='./img/off.svg'></button>
+						<button type="submit" class="button-blue small icon{MODE_00}" onClick="window.location.href='?setMode=00'" title="Set video mode"><img src='./img/video.svg'></button>
+						<button type="submit" class="button-blue small icon{MODE_01}" onClick="window.location.href='?setMode=01'" title="Set photo mode"><img src='./img/photo.svg'></button>
+						<button type="submit" class="button-blue small icon{MODE_02}" onClick="window.location.href='?setMode=02'" title="Set burst mode"><img src='./img/burst.svg'></button>
+						<button type="submit" class="button-blue small icon" onClick="window.location.href='?locateGoPro'" title="Locate Gopro. Makes it beep every 2s for 1 minute."><img src='./img/locate.svg'></button>
+						<button type="submit" class="button-blue small icon" onClick="var go = confirm('This will delete all files from your Gopro.\r\nAre you sure ?'); if(go) window.location.href='?deleteAll=true'" title="Delete all files from Gopro"><img src='./img/trash.svg'></button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

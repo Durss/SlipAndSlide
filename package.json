@@ -1,0 +1,33 @@
+{
+  "name": "slip-and-slide",
+  "version": "1.0.0",
+  "description": "Communicatewith arduino and gopro to detect users speed on slip&slide and start gopro shot. Go to http://localhost:8080 to access theconfiguration page.",
+  "main": "server.js",
+  "dependencies": {
+    "httpdispatcher": "^0.4.0",
+    "node-persist": "^0.0.6",
+    "serialport": "^1.7.4",
+    "request": "^2.60.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "node server.js COM3",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Durss/SlipAndSlide.git"
+  },
+  "keywords": [
+    "nodejs",
+    "arduino",
+    "speed",
+    "slipandslide"
+  ],
+  "author": "Durss",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/Durss/SlipAndSlide/issues"
+  },
+  "homepage": "https://github.com/Durss/SlipAndSlide#readme"
+}
