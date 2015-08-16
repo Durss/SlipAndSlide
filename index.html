@@ -49,12 +49,12 @@
 	.feedback-input {
 		color:#3c3c3c;
 		font-family: Helvetica, Arial, sans-serif;
-		font-weight:500;
-		font-size: 18px;
+		font-weight:bolder;
+		font-size: 30px;
 		border-radius: 0;
 		line-height: 22px;
 		background-color: #fbfbfb;
-		padding: 13px 13px 13px 54px;
+		padding: 8px 13px 13px 54px;
 		margin-bottom: 10px;
 		width:100%;
 		-webkit-box-sizing: border-box;
@@ -62,6 +62,11 @@
 		-ms-box-sizing: border-box;
 		box-sizing: border-box;
 		border: 3px solid rgba(0,0,0,0);
+	}
+
+	.feedback-input.half{
+		width: 50%;
+		display: inline;
 	}
 
 	.feedback-input:focus{
@@ -128,6 +133,51 @@
 
 	#duration:focus{
 		background-image: url(http://localhost:8080/img/duration.svg);
+		background-size: 30px 30px;
+		background-position: 8px 5px;
+		background-position: 11px 8px;
+		background-repeat: no-repeat;
+	}
+
+	#count{
+		background-image: url(http://localhost:8080/img/count.svg);
+		background-size: 30px 30px;
+		background-position: 11px 8px;
+		background-repeat: no-repeat;
+	}
+
+	#count:focus{
+		background-image: url(http://localhost:8080/img/count.svg);
+		background-size: 30px 30px;
+		background-position: 8px 5px;
+		background-position: 11px 8px;
+		background-repeat: no-repeat;
+	}
+
+	#width{
+		background-image: url(http://localhost:8080/img/width.svg);
+		background-size: 30px 30px;
+		background-position: 11px 8px;
+		background-repeat: no-repeat;
+	}
+
+	#width:focus{
+		background-image: url(http://localhost:8080/img/width.svg);
+		background-size: 30px 30px;
+		background-position: 8px 5px;
+		background-position: 11px 8px;
+		background-repeat: no-repeat;
+	}
+
+	#height{
+		background-image: url(http://localhost:8080/img/height.svg);
+		background-size: 30px 30px;
+		background-position: 11px 8px;
+		background-repeat: no-repeat;
+	}
+
+	#height:focus{
+		background-image: url(http://localhost:8080/img/height.svg);
 		background-size: 30px 30px;
 		background-position: 8px 5px;
 		background-position: 11px 8px;
@@ -257,6 +307,10 @@
 		background-color: #fff;
 	}
 
+	.mode-1, .mode-2 {
+		display: none;
+	}
+
 	</style>
 	</head>
 	<body>
@@ -268,7 +322,7 @@
 					<pre>{CONSOLE_VALUE}</pre>
 				</div>
 				<!--CONSOLE_END-->
-				<form class="form" id="form1" method="GET">
+				<form class="form" id="form1" method="GET" novalidate>
 					
 					<p class="name">
 						<label>
@@ -280,23 +334,40 @@
 					<p class="name">
 						<label>
 							<span>Light threshold :</span>
-							<input name="threshold" type="number" class="feedback-input" placeholder="Distance (cm)" id="threshold" value="{VAR_threshold}" min="0" max="1023">
+							<input name="threshold" type="number" class="feedback-input" placeholder="Distance (cm)" id="threshold" value="{VAR_threshold}" min="0" max="1023" step="10">
 						</label>
 					</p>
 					
 					<p class="name">
 						<label>
 							<span>Gopro shot delay (ms) :</span>
-							<input name="shotDelay" type="number" class="feedback-input" placeholder="Delay (ms)" id="delay" maxlength="4" value="{VAR_shotDelay}" min="0" max="5000">
+							<input name="shotDelay" type="number" class="feedback-input" placeholder="Delay (ms)" id="delay" maxlength="4" value="{VAR_shotDelay}" min="0" max="5000" step="500">
 						</label>
 					</p>
 					
-					<p class="name">
-						<label>
-							<span>Gopro video duration (ms) :</span>
-							<input name="videoDuration" type="number" class="feedback-input" placeholder="Duration (ms)" id="duration" value="{VAR_videoDuration}" min="2000" max="30000">
-						</label>
-					</p>
+					<div class="mode-{CURRENT_MODE}">
+						<p class="name">
+							<label>
+								<span>Gopro video duration (ms) :</span>
+								<input name="videoDuration" type="number" class="feedback-input" placeholder="Duration (ms)" id="duration" value="{VAR_videoDuration}" min="2000" max="30000" step="1000">
+							</label>
+						</p>
+						
+						<p class="name">
+							<label>
+								<span>Screens to extract form Videos :</span>
+								<input name="screensCount" type="number" class="feedback-input" placeholder="Number of screenshots..." id="count" value="{VAR_screensCount}" min="0" max="30">
+							</label>
+						</p>
+						
+						<p class="name">
+							<label>
+								<span>Screens size :</span>
+								<input name="screensWidth" type="number" class="feedback-input half" placeholder="Width..." id="width" value="{VAR_screensWidth}" min="0" max="2000" step="100"><!--
+								--><input name="screensHeight" type="number" class="feedback-input half" placeholder="Height..." id="height" value="{VAR_screensHeight}" min="0" max="2000" step="100">
+							</label>
+						</p>
+					</div>
 					
 					<input type="submit" value="SEND VALUES TO ARDUINO" class="button-blue">
 				</form>
@@ -314,11 +385,11 @@
 				<div class="section">
 					<span>Gopro Management :</span>
 					<div class="options">
-						<button type="submit" class="button-blue small icon" onClick="window.location.href='?power=01'" title="Power on camera"><img src='./img/on.svg'></button>
-						<button type="submit" class="button-blue small icon" onClick="window.location.href='?power=00'" title="Power off camera"><img src='./img/off.svg'></button>
-						<button type="submit" class="button-blue small icon{MODE_00}" onClick="window.location.href='?setMode=00'" title="Set video mode"><img src='./img/video.svg'></button>
-						<button type="submit" class="button-blue small icon{MODE_01}" onClick="window.location.href='?setMode=01'" title="Set photo mode"><img src='./img/photo.svg'></button>
-						<button type="submit" class="button-blue small icon{MODE_02}" onClick="window.location.href='?setMode=02'" title="Set burst mode"><img src='./img/burst.svg'></button>
+						<button type="submit" class="button-blue small icon" onClick="window.location.href='?power=on'" title="Power on camera"><img src='./img/on.svg'></button>
+						<button type="submit" class="button-blue small icon" onClick="window.location.href='?power=off'" title="Power off camera"><img src='./img/off.svg'></button>
+						<button type="submit" class="button-blue small icon{MODE_0}" onClick="window.location.href='?setMode=0'" title="Set video mode"><img src='./img/video.svg'></button>
+						<button type="submit" class="button-blue small icon{MODE_1}" onClick="window.location.href='?setMode=1'" title="Set photo mode"><img src='./img/photo.svg'></button>
+						<button type="submit" class="button-blue small icon{MODE_2}" onClick="window.location.href='?setMode=2'" title="Set burst mode"><img src='./img/burst.svg'></button>
 						<button type="submit" class="button-blue small icon" onClick="window.location.href='?locateGoPro'" title="Locate Gopro. Makes it beep every 2s for 1 minute."><img src='./img/locate.svg'></button>
 						<button type="submit" class="button-blue small icon" onClick="var go = confirm('This will delete all files from your Gopro.\r\nAre you sure ?'); if(go) window.location.href='?deleteAll=true'" title="Delete all files from Gopro"><img src='./img/trash.svg'></button>
 					</div>

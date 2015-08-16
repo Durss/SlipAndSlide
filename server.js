@@ -3,15 +3,23 @@
 //Reset your gopro wifi :
 // http://trendblog.net/reset-your-gopro-wifi-password-in-less-than-2-minutes/
 
-var gopro_password = 'your_gopro_wifi_password_here';
+
+var gopro_password	= 'your_password';//Set the wifi password of your gopro
+var filesPath		= '/videos/DCIM/100GOPRO/';//Set path to pictures/videos on gopro
+var copyFolder		= 'gopro_extacts';//Folder to copy medias to
+var screensFolder	= 'gopro_extacts/screenshots';//folder to save the screenshots extracted from videos
 
 var http		= require('http'),
 	serialport 	= require('serialport'),
-    url			= require("url"),
-    path		= require("path"),
-    fs			= require("fs"),
-    request		= require('request'),
-    storage		= require('node-persist');
+	url			= require("url"),
+	path		= require("path"),
+	fs			= require("fs"),
+	request		= require('request'),
+	storage		= require('node-persist');
+	ffmpeg		= require('fluent-ffmpeg');
+	GoPro		= require('gopro_hero_api'),
+	CameraMode	= GoPro.CameraMode,
+	camera		= new GoPro(gopro_password, '10.5.5.9', '8080')
 	SerialPort	= serialport.SerialPort;
 
 storage.initSync();
@@ -22,13 +30,48 @@ var params = {};
 	params['distance']		= storage.getItem("distance") || 30;
 	params['threshold']		= storage.getItem("threshold") || 200;
 	params['shotDelay']		= storage.getItem("shotDelay") || 500;
-	params['videoDuration']	= storage.getItem("videoDuration") || 10000;
-	params['currentMode']	= storage.getItem("currentMode") || '00';
+	params['videoDuration']	= storage.getItem("videoDuration") || 15000;
+	params['currentMode']	= storage.getItem("currentMode") || CameraMode.VIDEO.toString();
+	params['screensCount']	= storage.getItem("screensCount") || 5;
+	params['screensWidth']	= storage.getItem("screensWidth") || 1280;
+	params['screensHeight']	= storage.getItem("screensHeight") || 720;
 
 if(process.argv.length < 3) {
 	console.error('Missing port name argument (ex: COM3)');
 	process.exit(1);
 }
+
+//Create extract folders if they do not exists
+if(!fs.existsSync(copyFolder)) fs.mkdir(copyFolder);
+if(!fs.existsSync(screensFolder)) fs.mkdir(screensFolder);
+
+//Power gopro ON if necessary and change the capture mode to the one required
+camera.ready().then(function () {
+	camera.status().then(function (status) {
+
+		if(status.power.toLowerCase() == 'off') {
+
+			console.log("Gopro is OFF, powering it on...")
+
+			camera.power(true).then(function () {
+
+				camera.status().then(function (status) {
+					console.log('Gopro powered ON');
+					console.log('Setting camera mode to ' + params['currentMode']);
+					camera.setCameraMode(parseInt(params['currentMode']));
+				}).catch(function (error) { console.log("POWER ERROR :: " + error.message); });
+
+			}).catch(function (error) { console.log("POWER ERROR :: " + error.message); });
+
+		}else{
+			console.log('Gopro already ON.');
+			console.log('Setting camera mode to ' + params['currentMode']);
+			camera.setCameraMode(parseInt(params['currentMode']));
+		}
+
+	}).catch(function (error) { console.log("READY ERROR :: " + error.message); });
+}).catch(function (error) { console.log("READY ERROR :: " + error.message); });
+
 
 // get port name from the command line:
 var portName = process.argv[2];
@@ -39,32 +82,13 @@ var arduinoPort = new SerialPort(portName, {
  });
 
 
-console.log("Starting gopro...");
-request.get('http://10.5.5.9/bacpac/PW?t='+gopro_password+'&p=%01', function (error, response, body) {
-	if (!error && response.statusCode == 200) {
-		console.log("Gopro started !");
-		console.log("Setting video mode...");
-		request.get('http://10.5.5.9/camera/CM?t='+gopro_password+'&p=%' + params['currentMode'], function (error, response, body) {
-			console.log("Video mode set !");
-			if (!error && response.statusCode == 200) {
-				console.log("Disable auto power off... (not working with gopro hero 3 white)");
-				request.get('http://10.5.5.9/camera/AO?t='+gopro_password+'&p=%00', function (error, response, body) {
-					if (!error && response.statusCode == 200) {
-						console.log("Auto power off disabled");
-						console.log(body);
-					}
-				});
-			}
-		});
-	}
-});
-
 arduinoPort.on('data', onSerialData);
 
 var consoleValue = '';
 function onSerialData(data) {
-	console.log("::SERIAL DATA ::");
+	console.log(":: SERIAL DATA START ::");
 	console.log(data);
+	console.log(":: SERIAL DATA END ::");
 	//Light sensor values sent
 	if(/^t:-?[0-9]+:-?[0-9]+:-?[0-9]+:-?[0-9]+$/gi.test(data)) {
 		processRequest(undefined, {redirect:true});
@@ -81,24 +105,67 @@ function onSerialData(data) {
 		//Start shooting
 		setTimeout(function() {
 			console.log('Starting capture.');
-			request.get('http://10.5.5.9/bacpac/SH?t='+gopro_password+'&p=%01', function (error, response, body) {
-				if (!error && response.statusCode == 200) {
-					console.log(body);
-				}
+			 camera.capture(true).then(function () {
 				//If video mode, stop recording after duration
-				if(params['currentMode'] == '00') {
+				if(params['currentMode'] == '0') {
 					clearTimeout(timeoutStop);
 					timeoutStop = setTimeout(function(){
 						//Stop rectoding
 						console.log('Stop video recording.');
-						request.get('http://10.5.5.9/bacpac/SH?t='+gopro_password+'&p=%00',
-							function (error, response, body) {},
-							function(e) { console.log(e); });
+						camera.capture(false);
+						//Wait 2s before grabbing the file, jist to be sure it's fully written on gopro
+						//This value should probably be higher the higher video lenth is.
+						setTimeout( function() {
+							camera.requestFileSystem().then(function (fileStructure) {
+								console.log("Searching for file to download...");
+								var index = fileStructure.length - 1;
+								do{
+									var file = fileStructure[index]; //Download latest file
+									index --;
+								}while((!/.*(mp4|avi|mov|jpeg|jpg)$/i.test(file.name) || file.path.toLowerCase() != filesPath.toLowerCase()) && index > -1)
+								if(index == -1) {
+									console.log("Couldn't find any video or picture to download.")
+									return;
+								}
+
+								console.log('Copying latest file : ' + file.name);
+
+								camera.copyFile(file.absolutePath +  file.name, copyFolder).then(function (copiedFile) {
+									console.log('File copied !');
+									console.log(copiedFile);
+									//If it's a video and we want to extract screenshots from it, do it.
+									if(/.*(mp4|avi|mov)$/i.test(copiedFile.fileName) && params['screensCount'] > 0) {
+										console.log('Generate '+params['screensCount']+' screenshots...');
+										//TODO count seems not to work properly. Replace with timestamps array of percentage
+										var timestamps = [];
+										for(var i=0; i < params['screensCount']; i++) timestamps.push(Math.round(i / params['screensCount'] * 100) + '%' )
+										ffmpeg(copiedFile.path)
+										.screenshots({
+												folder:screensFolder,
+												timestamps:timestamps,
+												// count:params['screensCount'],
+												size:params['screensWidth']+'x'+params['screensHeight']
+											}
+										)
+										.on('filenames', function(filenames) {
+											console.log('Will generate ' + filenames.join(', '))
+										})
+										.on('end', function() {
+											console.log('Screenshots taken');
+										});
+									}
+								}).catch(function (error) {
+									console.log(error.message);
+									console.log(error.error);
+								});
+							});
+						}, 2000);
 					}, params['videoDuration']);
 				}
-			}, function(e) {
-				console.log(e);
-			})}
+			}).catch(function (error) {
+				console.log("CAPTURE ERROR ::" + error.message);
+			});
+		}
 		, params['shotDelay']);
 	}
 }
@@ -128,9 +195,7 @@ var server = http.createServer(function(req, response){
 	//Power off/on the gopro
 	if(query['power'] != undefined) {
 		console.log('Power ' + query['power']);
-		request.get('http://10.5.5.9/bacpac/PW?t='+gopro_password+'&p=%'+query['power'],
-			function (error, response, body) {console.log(body)},
-			function(e) { console.log(e); });
+		camera.power(query['power']=='on')
 	}
 
 	//Sets the capture mode
@@ -138,30 +203,24 @@ var server = http.createServer(function(req, response){
 		console.log('Set mode ' + query['setMode']);
 		params['currentMode'] = query['setMode'];
 		storage.setItem('currentMode', query['setMode']);
-		request.get('http://10.5.5.9/camera/CM?t='+gopro_password+'&p=%'+query['setMode'],
-			function (error, response, body) {},
-			function(e) { console.log(e); });
+		camera.status().then(function (status) {
+			camera.setCameraMode(parseInt(query['setMode']));
+		}).catch(function (error) { console.log("SET MODE ERROR :: " + error.message); });
 	}
 
 	//Deletes all medias from gopro
 	if(query['deleteAll'] != undefined) {
 		console.log('Delete all files from gopro.');
-		request.get('http://10.5.5.9/camera/DA?t='+gopro_password,
-			function (error, response, body) {},
-			function(e) { console.log(e); });
+		camera.deleteAll();
 	}
 
 	//Locates the gopro (makes it beep for 1min)
 	if(query['locateGoPro'] != undefined) {
 		console.log('Locate gopro.');
-		request.get('http://10.5.5.9/camera/LL?t='+gopro_password+'&p=%01',
-			function (error, response, body) {},
-			function(e) { console.log(e); });
+		camera.locate(true);
 		setTimeout(function() {
+			camera.locate(false);
 			console.log('Stop gopro location.');
-			request.get('http://10.5.5.9/camera/LL?t='+gopro_password+'&p=%00',
-				function (error, response, body) {},
-				function(e) { console.log(e); });
 		}, 60000)
 	}
 
@@ -192,6 +251,12 @@ var server = http.createServer(function(req, response){
 	if(query['videoDuration'] != undefined) {
 		params['videoDuration'] = query['videoDuration'];
 		storage.setItem('videoDuration', query['videoDuration']);
+	}
+
+	//Sets the number of screens to extract from videos
+	if(query['screensCount'] != undefined) {
+		params['screensCount'] = query['screensCount'];
+		storage.setItem('screensCount', query['screensCount']);
 	}
 
 	processRequest(response, query);
@@ -257,8 +322,9 @@ function processRequest(r, p) {
 			for(var key in params) {
 				file = file.replace('{VAR_'+key+'}', params[key]);
 			}
-			file = file.replace('{MODE_'+params['currentMode']+'}', ' selected');
-			file = file.replace(/\{MODE_[0-9]{2}\}/gi, '');
+			file = file.replace(new RegExp('{MODE_'+params['currentMode']+'}', 'gi'), ' selected');
+			file = file.replace(/\{MODE_[0-9]\}/gi, '');
+			file = file.replace(/\{CURRENT_MODE\}/gi, params['currentMode']);
 		}
 		r.write(file, "binary");
 		r.end();

@@ -1,8 +1,11 @@
 # SlipAndSlide
-NodeJS &amp; Arduino project to compute Slip&amp;Slide speed and control a Gopro remotely to start shooting when someone uses the Slip&amp;Slide.
+NodeJS &amp; Arduino project to compute Slip&amp;Slide speed and control a Gopro remotely to start shooting when someone uses the Slip&amp;Slide.<br />
+If you take videos you can automatically extract a custom number screenshots from them. Install FFMPEG !
 
 # Installation
 * Install [NodeJS](https://nodejs.org/)
+* Install [FFMPEG](https://www.ffmpeg.org/download.html)
+* Add **FFMPEG_PATH** to your environment vars. This should point to **[your_install_path]/ffmpeg/bin**
 * Clone Github project locally.
 * Run the following command to install all the project's dependencies :
  * ```npm install```
@@ -10,6 +13,7 @@ NodeJS &amp; Arduino project to compute Slip&amp;Slide speed and control a Gopro
 
 # Launch
 Open the file **server.js** and edit the **gopro_password** var to match the wifi password of your gopro.<br />
+You can also change the following vars if necessary : **filesPath**, **copyFolder**, **screensFolder**
 If you don't know your wifi password, try reseting it by following [this tutorial](http://trendblog.net/reset-your-gopro-wifi-password-in-less-than-2-minutes/)
 
 
