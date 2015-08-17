@@ -4,10 +4,12 @@
   "description": "Communicatewith arduino and gopro to detect users speed on slip&slide and start gopro shot. Go to http://localhost:8080 to access theconfiguration page.",
   "main": "server.js",
   "dependencies": {
-    "httpdispatcher": "^0.4.0",
+    "fluent-ffmpeg": "^2.0.1",
     "node-persist": "^0.0.6",
+    "gopro_hero_api": "^1.0.3",
+    "request": "^2.60.0",
     "serialport": "^1.7.4",
-    "request": "^2.60.0"
+    "httpdispatcher": "^0.4.0"
   },
   "devDependencies": {},
   "scripts": {
